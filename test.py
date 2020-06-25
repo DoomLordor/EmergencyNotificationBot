@@ -1,3 +1,4 @@
+
 from threading import Thread
 from telebot import TeleBot
 import bot as t
@@ -16,6 +17,7 @@ def main(bot):
             variable1.join()
             bot.stop_polling()
         else:
+            mailing(bot, a)
             print(a)
 
 
@@ -24,11 +26,11 @@ def start_bot(bot):
 
 
 def mailing(bot, text):
-    v = [1011917065, 809971387]
-    for val in v:
+    for val in t.v:
         bot.send_message(val, text)
 
 
 if __name__ == '__main__':
     bot = TeleBot('1213132925:AAE2jwkv00Xgl6AeyQj9UxgkZE5QoHpm2fU')
+
     main(bot)
