@@ -11,7 +11,7 @@ def main(bot):
     while True:
         a = input(': ')
         if a.lower() == 'пожар':
-            mailing(bot, a)
+            t.mailing(bot, a)
         elif a.lower() == 'стоп':
             variable.join()
             variable1.join()
@@ -22,12 +22,6 @@ def main(bot):
 
 def start_bot(bot):
     bot.polling(none_stop=True, interval=0)
-
-
-def mailing(bot, text):
-    v = [1011917065, 809971387]
-    for val in v:
-        bot.send_message(val, text)
 
 
 if __name__ == '__main__':
