@@ -1,4 +1,4 @@
-from .key_phrase_extraction_example import *
+from key_phrase_extraction_example import *
 i = 0
 b = []
 key = "50eb5695624243b59cc69f3c87a5289b"
