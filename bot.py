@@ -63,5 +63,11 @@ def main(bot):
         dict_adress = {1:home, 2:work, 3:stud}
         print(dict_adress)
 
-
-
+    @bot.message_handler(content_types=['text'])
+    def prp(massage):
+        response_keys = key_phrase_extraction_example(client, massage.text)
+        responses = ''
+        for phrase in response_keys:
+            responses = responses + phrase + ','
+        bot.send_message(massage.chat.id, responses)
+        b.append(massage.chat.id)
