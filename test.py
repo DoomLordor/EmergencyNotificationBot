@@ -13,7 +13,7 @@ def main(bot):
     variable.start()
     variable1.start()
     while True:
-        a = input(': ')
+        a = input('Сообщение: ')
         if a.lower() == 'пожар':
             t.mailing(bot, a)
         elif a.lower() == 'стоп':
@@ -33,5 +33,4 @@ def start_bot(bot):
 
 if __name__ == '__main__':
     bot = TeleBot('1213132925:AAE2jwkv00Xgl6AeyQj9UxgkZE5QoHpm2fU')
-
     main(bot)

@@ -1,11 +1,20 @@
 import Keyboards
+import key_phrase_extraction_example
+
 i = 0
 b = []
 v = []
-x = []
 dict_adress={}
 dict_baze={}
 baze={}
+
+def authenticate_client():
+    ta_credential = AzureKeyCredential(key)
+    text_analytics_client = TextAnalyticsClient(
+            endpoint=endpoint, credential=ta_credential)
+    return text_analytics_client
+
+client = authenticate_client()
 
 
 def main(bot):
@@ -96,26 +105,26 @@ def main(bot):
         with open('Adress.txt', 'a') as f:
             f.write(f'{dict_baze}\n')
 
-    @bot.message_handler(content_types=['text'])
-    def prp(message):
-        global i, b
-        if message.text == 'Код МЧС 112':
-            i = 49
-        else:
-            print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
-        if message.from_user.id not in b:
-            i += 1
-            print(f'Сигнал{i}/10')
-            b.append(message.chat.id)
-        if i > 9 and message.text!='Код МЧС 112':
-            i = 0
-            for id in b:
-                bot.send_message(id, 'Вы находитесь в опасности')
-            b.clear()
-        elif i == 50:
-            i = 0
-            for id in b:
-                bot.send_message(id, 'МЧС ПРЕДУПРЕЖДАЕТ! \nВы находитесь в опасности')
+    #@bot.message_handler(content_types=['text'])
+    #def prp(message):
+    #    global i, b
+    #    if message.text == 'Код МЧС 112':
+     #       i = 49
+     #   else:
+      #      print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
+     #   if message.from_user.id not in b:
+      #      i += 1
+      #      print(f'Сигнал {i}/10')
+      #      b.append(message.chat.id)
+      #  if i > 9 and message.text!='Код МЧС 112':
+      #      i = 0
+       #     for id in b:
+       #         bot.send_message(id, 'Вы находитесь в опасности')
+       #     b.clear()
+       # elif i == 50:
+       #     i = 0
+       #     for id in b:
+       #         bot.send_message(id, 'МЧС ПРЕДУПРЕЖДАЕТ! \nВы находитесь в опасности')
 
 
 def mailing(bot, text):
