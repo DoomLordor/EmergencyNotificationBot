@@ -33,18 +33,35 @@ def main(bot):
                                           '\n112 - мобильный агрегатор МЧС')
 
 
-    @bot.message_handler(content_types=['text'])
-    def prp(massage):
-        global i, b
-        print(massage.from_user.first_name, '[',massage.from_user.id,']:', massage.text)
-        response_keys = key_phrase_extraction_example(client, massage.text)
-        bot.send_message(massage.chat.id, response_keys)
-        i += 1
-        print('Сигнал',i,'/10')
-        b.append(massage.chat.id)
-        print(b)
-        if i == 2:
-            i = 0
-            bot.send_message(b[-1], 'Вы находитесь в опасности')
 
-    
+
+    @bot.message_handler(commands = ['reg', 'h'])
+    def consAdr(massage):
+        bot.send_message(massage.chat.id, 'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания ')
+        bot.register_next_step_handler(massage, workAdr)
+
+
+    def workAdr(massage):
+        global home
+        home =massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы ')
+
+        bot.register_next_step_handler(massage, studAdr)
+
+    def studAdr(massage):
+        global work
+        work =massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы ')
+
+        bot.register_next_step_handler(massage, out)
+
+    def out(massage):
+        global stud
+        stud =massage.text
+        #  global home, work, stud
+        bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
+        dict_adress = {1:home, 2:work, 3:stud}
+        print(dict_adress)
+
+
+
