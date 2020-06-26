@@ -1,7 +1,18 @@
+from .key_phrase_extraction_example import *
 i = 0
 b = []
+key = "50eb5695624243b59cc69f3c87a5289b"
+endpoint = "https://emergencynotification.cognitiveservices.azure.com/"
+from azure.ai.textanalytics import TextAnalyticsClient
+from azure.core.credentials import AzureKeyCredential
 
+def authenticate_client():
+    ta_credential = AzureKeyCredential(key)
+    text_analytics_client = TextAnalyticsClient(
+            endpoint=endpoint, credential=ta_credential)
+    return text_analytics_client
 
+client = authenticate_client()
 
 def main(bot):
     @bot.message_handler(commands=['start', 'go'])
@@ -36,3 +47,10 @@ def main(bot):
         if i == 2:
             i = 0
             bot.send_message(b[-1], 'Вы находитесь в опасности')
+
+    @bot.message_handler(commands=['Notify about incident', 'h'])
+    def Notify_center(message):
+        bot.send_message(message.chat.id, "Расскажите о происшествии")
+        bot.register_next_step_handler(message)
+        response_keys=key_phrase_extraction_example(client, message)
+        bot.send_message(message.chat.id, response_keys)
