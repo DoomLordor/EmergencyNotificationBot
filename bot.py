@@ -99,14 +99,25 @@ def main(bot):
     @bot.message_handler(commands=['reg', 'h'])
     def consAdr(massage):
         bot.send_message(massage.chat.id,
-                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания ')
+                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания \n Улица: ')
+        bot.register_next_step_handler(massage, homeHouse)
+
+    def homeHouse(massage):
+        global HomeStreet
+        HomeStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
         bot.register_next_step_handler(massage, workAdr)
 
     def workAdr(massage):
-        global home
-        home = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы ')
+        global HomeHouse
+        HomeHouse = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы \n Улица:')
+        bot.register_next_step_handler(massage, workHouse)
 
+    def workHouse(massage):
+        global WorkStreet
+        WorkStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
         bot.register_next_step_handler(massage, studAdr)
 
     def studAdr(massage):
@@ -127,7 +138,7 @@ def main(bot):
         print(dict_adress)
 
     @bot.message_handler(content_types=['text'])
-    def prp(massage):
+    def keyPhrases(massage):
         response_keys = key_phrase_extraction_example(client, massage.text)
         responses = ''
         for phrase in response_keys:
@@ -135,27 +146,27 @@ def main(bot):
         bot.send_message(massage.chat.id, responses)
         b.append(massage.chat.id)
 
+        global WorkHouse
+        WorkHouse = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы \n Улица: ')
+        bot.register_next_step_handler(massage, studHouse)
 
-    @bot.message_handler(content_types=['text'])
-    def prp(message):
-        global i, b
-        if message.text == 'Код МЧС 112':
-            i = 49
-        else:
-            print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
-        if message.from_user.id not in b:
-            i += 1
-            print(f'Сигнал{i}/10')
-            b.append(message.chat.id)
-        if i > 9 and message.text!='Код МЧС 112':
-            i = 0
-            for id in b:
-                bot.send_message(id, 'Вы находитесь в опасности')
-            b.clear()
-        elif i == 50:
-            i = 0
-            for id in b:
-                bot.send_message(id, 'МЧС ПРЕДУПРЕЖДАЕТ! \nВы находитесь в опасности')
+    def studHouse(massage):
+        global StudStreet
+        StudStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
+        bot.register_next_step_handler(massage, out)
+
+    def out(massage):
+        global StudHouse
+        StudHouse = massage.text
+        bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
+        dict_adress = {1: HomeStreet, 2: HomeHouse, 3: WorkStreet, 4: WorkHouse, 5: StudStreet, 6: StudHouse}
+        print(dict_adress)
+
+        with open('Adress.txt', 'a') as f:
+            f.write(f'{massage.from_user.id} {dict_adress}\n')
+
 
 
 def mailing(bot, text):
