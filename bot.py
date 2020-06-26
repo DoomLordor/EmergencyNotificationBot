@@ -121,31 +121,6 @@ def main(bot):
         bot.register_next_step_handler(massage, studAdr)
 
     def studAdr(massage):
-        global work
-
-        work =massage.text
-        work = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы ')
-
-        bot.register_next_step_handler(massage, out)
-
-    def out(massage):
-        global stud
-        stud =massage.text
-        #  global home, work, stud
-        bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
-        dict_adress = {1:home, 2:work, 3:stud}
-        print(dict_adress)
-
-    @bot.message_handler(content_types=['text'])
-    def keyPhrases(massage):
-        response_keys = key_phrase_extraction_example(client, massage.text)
-        responses = ''
-        for phrase in response_keys:
-            responses = responses + phrase + ','
-        bot.send_message(massage.chat.id, responses)
-        b.append(massage.chat.id)
-
         global WorkHouse
         WorkHouse = massage.text
         bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы \n Улица: ')
@@ -164,9 +139,14 @@ def main(bot):
         dict_adress = {1: HomeStreet, 2: HomeHouse, 3: WorkStreet, 4: WorkHouse, 5: StudStreet, 6: StudHouse}
         print(dict_adress)
 
-        with open('Adress.txt', 'a') as f:
-            f.write(f'{massage.from_user.id} {dict_adress}\n')
-
+    @bot.message_handler(content_types=['text'])
+    def keyPhrases(massage):
+        response_keys = key_phrase_extraction_example(client, massage.text)
+        responses = ''
+        for phrase in response_keys:
+            responses = responses + phrase + ','
+        bot.send_message(massage.chat.id, responses)
+        b.append(massage.chat.id)
 
 
 def mailing(bot, text):
