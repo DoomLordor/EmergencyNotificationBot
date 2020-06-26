@@ -52,29 +52,46 @@ def main(bot):
     @bot.message_handler(commands=['reg', 'h'])
     def consAdr(massage):
         bot.send_message(massage.chat.id,
-                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания ')
+                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания \n Улица: ')
+        bot.register_next_step_handler(massage, homeHouse)
+
+    def homeHouse(massage):
+        global HomeStreet
+        HomeStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
         bot.register_next_step_handler(massage, workAdr)
 
     def workAdr(massage):
-        global home
-        home = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы ')
+        global HomeHouse
+        HomeHouse = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы \n Улица:')
+        bot.register_next_step_handler(massage, workHouse)
 
+    def workHouse(massage):
+        global WorkStreet
+        WorkStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
         bot.register_next_step_handler(massage, studAdr)
 
     def studAdr(massage):
-        global work
-        work = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы ')
+        global WorkHouse
+        WorkHouse = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы \n Улица: ')
+        bot.register_next_step_handler(massage, studHouse)
 
+    def studHouse(massage):
+        global StudStreet
+        StudStreet = massage.text
+        bot.send_message(massage.chat.id, 'Дом: ')
         bot.register_next_step_handler(massage, out)
 
     def out(massage):
-        global stud
-        stud = massage.text
+        global StudHouse
+        StudHouse = massage.text
         bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
-        dict_adress = {1: home, 2: work, 3: stud}
+        dict_adress = {1: HomeStreet, 2: HomeHouse, 3: WorkStreet, 4: WorkHouse, 5: StudStreet, 6: StudHouse}
         print(dict_adress)
+
         with open('Adress.txt', 'a') as f:
             f.write(f'{massage.from_user.id} {dict_adress}\n')
 
