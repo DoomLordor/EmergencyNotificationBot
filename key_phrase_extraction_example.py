@@ -15,4 +15,4 @@ def key_phrase_extraction_example(client, message):
     except Exception as err:
         print("Encountered exception. {}".format(err))
 
-     ##return response_keys
+    return response_keys
