@@ -1,10 +1,9 @@
 from telebot import types
 
 markup1 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-item1=types.KeyboardButton("/help")
-item2=types.KeyboardButton("/start")
-item3 = types.KeyboardButton("/EXIT")
-markup1.add(item1, item2, item3)
+item1 = types.KeyboardButton("/help")
+item2 = types.KeyboardButton("/EXIT")
+markup1.add(item1, item2)
 
 markup2 = types.ReplyKeyboardMarkup(resize_keyboard=True)
 item1 = types.KeyboardButton("/help")
@@ -23,11 +22,16 @@ item6 = types.KeyboardButton("/help")
 markup3.add(item1, item2, item3, item4, item5, item6)
 
 markup4 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-item1=types.KeyboardButton("/reg")
-item2=types.KeyboardButton("/EXIT")
+item1 = types.KeyboardButton("/reg")
+item2 = types.KeyboardButton("/EXIT")
 markup4.add(item1, item2)
 
 markup5 = types.ReplyKeyboardMarkup(resize_keyboard=True)
-item1=types.KeyboardButton("/help")
-item2=types.KeyboardButton("/start")
+item1 = types.KeyboardButton("/help")
+item2 = types.KeyboardButton("/start")
 markup5.add(item1, item2)
+
+markup6 = types.ReplyKeyboardMarkup(resize_keyboard=True)
+item1 = types.KeyboardButton("/help")
+item2 = types.KeyboardButton("/EXIT")
+markup6.add(item1, item2)

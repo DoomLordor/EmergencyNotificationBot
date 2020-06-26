@@ -4,6 +4,7 @@ b = []
 v = []
 x = []
 dict_adress={}
+dict_baze={}
 baze={}
 
 
@@ -18,12 +19,11 @@ def main(bot):
                 f.write(f'{message.from_user.id} {message.from_user.first_name}\n')
             bot.send_message(message.chat.id, 'Вас приветсвует Emergency Notification bot! \n'
                                               'Вы ещё не зарегестрированы в нашем приложении.\n'
-                                              'Пройти Регистрацию?',
-                                              reply_markup=Keyboards.markup4)
+                                              'Пройти Регистрацию?', reply_markup=Keyboards.markup4)
         else:
             bot.send_message(message.chat.id,    'Вас приветсвует Emergency Notification bot! \n'
                                                  'Введите /help для получения справки по командам',
-                                                 reply_markup=Keyboards.markup1)
+                                                  reply_markup=Keyboards.markup1)
 
     @bot.message_handler(commands=['EXIT'])
     def exit_handler(message):
@@ -50,50 +50,51 @@ def main(bot):
                                              reply_markup=Keyboards.markup3)
 
     @bot.message_handler(commands=['reg', 'h'])
-    def consAdr(massage):
-        bot.send_message(massage.chat.id,
-                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания \n Улица: ')
-        bot.register_next_step_handler(massage, homeHouse)
+    def consAdr(message):
+        bot.send_message(message.chat.id, 'Вы ещё не зарегистрированы. Для регистрации '
+                                          'предоставьте нам свой адрес постоянного проживания \n Улица: ')
+        bot.register_next_step_handler(message, homeHouse)
 
-    def homeHouse(massage):
+    def homeHouse(message):
         global HomeStreet
-        HomeStreet = massage.text
-        bot.send_message(massage.chat.id, 'Дом: ')
-        bot.register_next_step_handler(massage, workAdr)
+        HomeStreet = message.text
+        bot.send_message(message.chat.id, 'Дом: ')
+        bot.register_next_step_handler(message, workAdr)
 
-    def workAdr(massage):
+    def workAdr(message):
         global HomeHouse
-        HomeHouse = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы \n Улица:')
-        bot.register_next_step_handler(massage, workHouse)
+        HomeHouse = message.text
+        bot.send_message(message.chat.id, 'Предоставьте нам свой адрес работы \n Улица:')
+        bot.register_next_step_handler(message, workHouse)
 
-    def workHouse(massage):
+    def workHouse(message):
         global WorkStreet
-        WorkStreet = massage.text
-        bot.send_message(massage.chat.id, 'Дом: ')
-        bot.register_next_step_handler(massage, studAdr)
+        WorkStreet = message.text
+        bot.send_message(message.chat.id, 'Дом: ')
+        bot.register_next_step_handler(message, studAdr)
 
-    def studAdr(massage):
+    def studAdr(message):
         global WorkHouse
-        WorkHouse = massage.text
-        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы \n Улица: ')
-        bot.register_next_step_handler(massage, studHouse)
+        WorkHouse = message.text
+        bot.send_message(message.chat.id, 'Предоставьте нам свой адрес учебы \n Улица: ')
+        bot.register_next_step_handler(message, studHouse)
 
-    def studHouse(massage):
+    def studHouse(message):
         global StudStreet
-        StudStreet = massage.text
-        bot.send_message(massage.chat.id, 'Дом: ')
-        bot.register_next_step_handler(massage, out)
+        StudStreet = message.text
+        bot.send_message(message.chat.id, 'Дом: ')
+        bot.register_next_step_handler(message, out)
 
-    def out(massage):
+    def out(message):
         global StudHouse
-        StudHouse = massage.text
-        bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
+        StudHouse = message.text
+        bot.send_message(message.chat.id, 'Спасибо за предоставленную информацию',
+                                            reply_markup=Keyboards.markup6)
         dict_adress = {1: HomeStreet, 2: HomeHouse, 3: WorkStreet, 4: WorkHouse, 5: StudStreet, 6: StudHouse}
         print(dict_adress)
-
+        dict_baze = {1: message.from_user.id, 2: dict_adress}
         with open('Adress.txt', 'a') as f:
-            f.write(f'{massage.from_user.id} {dict_adress}\n')
+            f.write(f'{dict_baze}\n')
 
     @bot.message_handler(content_types=['text'])
     def prp(message):
