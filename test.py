@@ -4,6 +4,10 @@ import bot as t
 
 
 def main(bot):
+    with open('Baze.txt', 'r') as f:
+        text = f.read().split('\n')
+        text.pop()
+        t.v = list(map(int, text))
     variable = Thread(target=start_bot, args=(bot,))
     variable1 = Thread(target=t.main, args=(bot,))
     variable.start()
@@ -11,7 +15,7 @@ def main(bot):
     while True:
         a = input(': ')
         if a.lower() == 'пожар':
-            mailing(bot, a)
+            t.mailing(bot, a)
         elif a.lower() == 'стоп':
             variable.join()
             variable1.join()
@@ -23,6 +27,8 @@ def main(bot):
 
 def start_bot(bot):
     bot.polling(none_stop=True, interval=0)
+
+
 
 
 if __name__ == '__main__':
