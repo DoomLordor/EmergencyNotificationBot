@@ -34,10 +34,11 @@ def main(bot):
         bot.send_message(message.chat.id,    'Список команд:\n'
                                              '1) /help - получение справки\n'
                                              '2) /numbers - номера телефонов спецслужб\n'
-                                             '3) /reg - регистрация в приложении\n'
-                                             '4) /edit - смена адресса регистрации\n'
-                                             '5) "/EXIT" - Выход из системы',
+                                             '3) /edit - смена адресса регистрации\n'
+                                             '4) /EXIT - Выход из системы',
                                              reply_markup=Keyboards.markup2)
+
+
 
     @bot.message_handler(commands=['numbers'])
     def numbers_handler(message):
@@ -48,20 +49,55 @@ def main(bot):
                                              '112 - мобильный агрегатор МЧС',
                                              reply_markup=Keyboards.markup3)
 
+    @bot.message_handler(commands=['reg', 'h'])
+    def consAdr(massage):
+        bot.send_message(massage.chat.id,
+                         'Вы ещё не зарегистрированы. Для регистрации предоставьте нам свой адрес постоянного проживания ')
+        bot.register_next_step_handler(massage, workAdr)
 
+    def workAdr(massage):
+        global home
+        home = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес работы ')
+
+        bot.register_next_step_handler(massage, studAdr)
+
+    def studAdr(massage):
+        global work
+        work = massage.text
+        bot.send_message(massage.chat.id, 'Предоставьте нам свой адрес учебы ')
+
+        bot.register_next_step_handler(massage, out)
+
+    def out(massage):
+        global stud
+        stud = massage.text
+        bot.send_message(massage.chat.id, 'Спасибо за предоставленную информацию')
+        dict_adress = {1: home, 2: work, 3: stud}
+        print(dict_adress)
+        with open('Adress.txt', 'a') as f:
+            f.write(f'{massage.from_user.id} {dict_adress}\n')
+
+    @bot.message_handler(content_types=['text'])
     def prp(message):
         global i, b
-        print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
-
+        if message.text == 'Код МЧС 112':
+            i = 49
+        else:
+            print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
         if message.from_user.id not in b:
             i += 1
             print(f'Сигнал{i}/10')
             b.append(message.chat.id)
-        if i == 3:
+        if i > 9 and message.text!='Код МЧС 112':
             i = 0
             for id in b:
                 bot.send_message(id, 'Вы находитесь в опасности')
             b.clear()
+        elif i == 50:
+            i = 0
+            for id in b:
+                bot.send_message(id, 'МЧС ПРЕДУПРЕЖДАЕТ! \nВы находитесь в опасности')
 
 
 def mailing(bot, text):
