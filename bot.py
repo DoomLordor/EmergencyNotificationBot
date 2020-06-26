@@ -40,6 +40,8 @@ def main(bot):
     def prp(massage):
         global i, b
         print(massage.from_user.first_name, '[',massage.from_user.id,']:', massage.text)
+        response_keys = key_phrase_extraction_example(client, massage.text)
+        bot.send_message(massage.chat.id, response_keys)
         i += 1
         print('Сигнал',i,'/10')
         b.append(massage.chat.id)
@@ -48,9 +50,4 @@ def main(bot):
             i = 0
             bot.send_message(b[-1], 'Вы находитесь в опасности')
 
-    @bot.message_handler(commands=['Notify about incident', 'h'])
-    def Notify_center(message):
-        bot.send_message(message.chat.id, "Расскажите о происшествии")
-        bot.register_next_step_handler(message)
-        response_keys=key_phrase_extraction_example(client, message)
-        bot.send_message(message.chat.id, response_keys)
+    
