@@ -4,7 +4,7 @@ import bot as t
 
 
 def main(bot):
-    with open('Baze.txt', 'r') as f:
+    with open('Base.txt', 'r') as f:
         text = f.read().split('\n')
         text.pop()
         t.v = list(map(int, text))
@@ -27,8 +27,6 @@ def main(bot):
 
 def start_bot(bot):
     bot.polling(none_stop=True, interval=0)
-
-
 
 
 if __name__ == '__main__':
