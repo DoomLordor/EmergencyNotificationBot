@@ -1,1 +1,5 @@
 pyTelegramBotAPI==3.7.1
+psycopg2==2.8.5
+azure-ai-textanalytics==1.0.0
+azure-common==1.1.25
+azure-core==1.6.0
