@@ -17,7 +17,6 @@ def handler(bot, connect):
 
     @bot.message_handler(commands=['start', 'go'])
     def start_handler(message):
-
         if str(message.from_user.id) not in get_all_user(connect):
             new_user(connect, message.from_user.id)
             bot.send_message(message.chat.id,
@@ -45,8 +44,8 @@ def handler(bot, connect):
                          '1) /help - получение справки\n'
                          '2) /numbers - номера телефонов спецслужб\n'
                          '3) /update - смена адресса регистрации\n'
-                         '4) /exit - Выход из системы\n'
-                         '5) /description - Перейсти к описанию ЧС',
+                         '4) /description - Перейсти к описанию ЧС\n'
+                         '5) /exit - Выход из системы',
                          reply_markup=KB.markup2)
 
     @bot.message_handler(commands=['update'])
@@ -121,7 +120,7 @@ def handler(bot, connect):
     #     bot.send_message(message.chat.id, 'Опишите ситуацию: ')
     #     bot.register_next_step_handler(message, main_description)
     #
-    # def main_descriptiont(message):
+    # def main_description(message):
     #         global i, b
     #         print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
     #         ## Проверять адресс и ссумировать только схожие
