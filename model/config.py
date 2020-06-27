@@ -5,3 +5,6 @@ database_connect = {'dbname': 'postgres',
                     'password': 'PASH51379!',
                     'port': '5432',
                     'sslmode': 'require'}
+
+key = "50eb5695624243b59cc69f3c87a5289b"
+endpoint = "https://emergencynotification.cognitiveservices.azure.com/"
