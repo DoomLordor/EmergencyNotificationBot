@@ -1,11 +1,12 @@
 import TelegramBot.Keyboards as KB
 from model.database import set_address, new_user, get_all_user
+from model.key_phrase_extraction import key_phrase_extraction
 reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 
 
-def handler(bot, connect):
+def handler(bot, connect, client):
 
     def check_exit(func):
         def wrapper(message, *arg, **keyword):
@@ -115,6 +116,14 @@ def handler(bot, connect):
             street = reg[message.from_user.id]['street']
             address[message.from_user.id] = f'{street}:{message.text}'
 
+    # def keyPhrases(massage):
+    #     response_keys = key_phrase_extraction(client, massage.text)
+    #     responses = ''
+    #     for phrase in response_keys:
+    #         responses = responses + phrase + ','
+    #     bot.send_message(massage.chat.id, responses)
+    #     b.append(massage.chat.id)
+    #
     # @bot.message_handler(commands=['description', 'd'])
     # def description_key(message):
     #     bot.send_message(message.chat.id, 'Опишите ситуацию: ')
