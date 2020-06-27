@@ -7,6 +7,17 @@ pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 danger_user_id = []
 
 
+def important_mailing(bot, text, users):
+    global danger_user_id
+    danger_user_id = users.copy()
+    for id in users:
+        if type(id) is str:
+            id = int(id)
+        bot.send_message(id, f'{text}\n Вы сейчас находитесть по данному адресу?', reply_markup=KB.markup8)
+
+
+
+
 def handler(bot, connect, client):
 
     global danger_user
@@ -38,7 +49,7 @@ def handler(bot, connect, client):
         global reg
         if reg.get(message.from_user.id):
             reg.pop(message.from_user.id)
-        address.pop(message.from_user.id)
+            address.pop(message.from_user.id)
         bot.send_message(message.chat.id, f'Всего доброго, {message.from_user.first_name}', reply_markup=KB.markup5)
 
     @bot.message_handler(commands=['help', 'h'])
@@ -149,25 +160,20 @@ def handler(bot, connect, client):
     #         bot.send_message(message.chat.id, f'{message.from_user.first_name} Спасибо за предоставленную информацию',
     #                          reply_markup=KB.markup1)
 
-    def danger_user_true(users, address):
-        global danger_user_id
-        danger_user_id = users.copy()
-        for id in users:
-            if type(id) is str:
-                id = int(id)
-            bot.send_message(id, f'Вы сейчас находитесть по адресу - {address}')
+
 
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
         if str(message.from_user.id) in danger_user_id:
+            print(danger_user_id)
             if message.text.lower() == 'да':
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
-                global people_danger
-                people_danger[message.from_user.id] = ["user", message.from_user.id]
+    #            global people_danger
+    #            people_danger[message.from_user.id] = ["user", message.from_user.id]
             elif message.text.lower() == 'нет':
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
                                                        'Если да, то укажиче их количество.')
-                danger_user_id.pop(message.from_user.id)
+                danger_user_id.remove(str(message.from_user.id))
                 bot.register_next_step_handler(message, check_danger_user_close)
 
     def check_danger_user_close(message):
@@ -175,11 +181,13 @@ def handler(bot, connect, client):
             bot.send_message(message.from_user.id, 'Хорошо. Удачного вам дня.')
         elif message.text.isdigit():
             global people_danger
-            people_danger[message.from_user.id] = ["not_user", message.text]
+   #        people_danger[message.from_user.id] = ["not_user", message.text]
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
-            print(people_danger)
+            print(danger_user_id)
 
-    danger_user = danger_user_true
+   #         print(people_danger)
+
+    #danger_user = danger_user_true
 
 
 def mailing(bot, text, users):
