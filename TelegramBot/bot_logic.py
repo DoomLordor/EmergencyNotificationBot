@@ -35,7 +35,8 @@ def handler(bot, connect):
         global reg
         if reg.get(message.from_user.id):
             reg.pop(message.from_user.id)
-        bot.send_message(message.chat.id, 'Всего доброго', reply_markup=KB.markup5)
+        address.pop(message.from_user.id)
+        bot.send_message(message.chat.id, f'Всего доброго, {message.from_user.first_name}', reply_markup=KB.markup5)
 
     @bot.message_handler(commands=['help', 'h'])
     def help_handler(message):
