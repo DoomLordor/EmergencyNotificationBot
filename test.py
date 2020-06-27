@@ -3,7 +3,7 @@ from telebot import TeleBot
 from psycopg2 import connect
 from threading import Thread
 from model.database import get_all_user, get_user
-from TelegramBot.bot_logic import handler, mailing, important_mailing, danger_user
+from TelegramBot.bot_logic import handler, mailing, emergency_mailing, danger_user
 from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
 from model.config import token_telegram_bot, database_connect, key, endpoint, Disasters
@@ -24,7 +24,7 @@ def main(bot, conn, client):
             num = input('Введите дом проишествия: ')
             users = get_user(conn, f'{street}:{num}')
             message = f'По аддресу {street.title()} {num} произошло проишествие: {message}'
-            important_mailing(bot, message, users)
+            emergency_mailing(bot, message, users)
             danger_user(users, f'{street.title()} {num}')
         elif message.lower() == 'стоп':
             bot.stop_polling()
