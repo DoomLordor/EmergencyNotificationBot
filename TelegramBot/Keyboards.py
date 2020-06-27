@@ -48,3 +48,8 @@ item2 = types.KeyboardButton("Место учёбы")
 item3 = types.KeyboardButton("Место работы")
 item4 = types.KeyboardButton("/exit")
 markup7.add(item1, item2, item3, item4)
+
+markup8 = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+item1 = types.KeyboardButton("Да")
+item2 = types.KeyboardButton("Нет")
+markup8.add(item1, item2)
