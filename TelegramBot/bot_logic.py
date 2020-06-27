@@ -6,6 +6,15 @@ pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 
 
 def handler(bot, connect):
+
+    def check_exit(func):
+        def wrapper(message, *arg, **keyword):
+            if message.text == '/exit':
+                exit_handler(message)
+            else:
+                func(message, *arg, **keyword)
+        return wrapper
+
     @bot.message_handler(commands=['start', 'go'])
     def start_handler(message):
 
@@ -60,6 +69,7 @@ def handler(bot, connect):
         bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.markup7)
         bot.register_next_step_handler(message, get_type_place)
 
+    @check_exit
     def get_type_place(message):
         global reg
         text = message.text
@@ -76,6 +86,7 @@ def handler(bot, connect):
             bot.send_message(message.chat.id, 'Отправте название улицы:')
             bot.register_next_step_handler(message, get_street)
 
+    @check_exit
     def get_street(message):
         global reg
         if message.text.isdigit():
@@ -87,6 +98,7 @@ def handler(bot, connect):
             bot.send_message(message.chat.id, 'Отправте номер дома:')
             bot.register_next_step_handler(message, get_home_number)
 
+    @check_exit
     def get_home_number(message):
         global reg, address
         if message.text.isalpha():
