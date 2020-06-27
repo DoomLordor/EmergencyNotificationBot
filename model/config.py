@@ -8,3 +8,10 @@ database_connect = {'dbname': 'postgres',
 
 key = "50eb5695624243b59cc69f3c87a5289b"
 endpoint = "https://emergencynotification.cognitiveservices.azure.com/"
+
+Disasters = ['пожар',
+             'наводнение',
+             'цунами',
+             'извержение вулкана',
+             'землетрясение',
+             'взрыв']
