@@ -12,7 +12,7 @@ from model.config import token_telegram_bot, database_connect, key, endpoint, Di
 def main(bot, conn, client):
     bot_work = Thread(target=start_bot, args=(bot,))
     bot_logic = Thread(target=handler, args=(bot, conn, client))
-    timer_danger = Thread(target=timer, args=(danger, flag))
+    timer_danger = Thread(target=timer, args=(danger,))
     bot_work.start()
     bot_logic.start()
     timer_danger.start()
@@ -23,7 +23,7 @@ def main(bot, conn, client):
     while True:
         message = input('Сообщение: ')
         if message.lower() in Disasters:
-            dangerous_start(message)
+            dangerous_start(message, bot, conn)
         elif message.lower() == 'проишествие стоп':
             dangerous_stop()
         elif message.lower() == 'стоп':
