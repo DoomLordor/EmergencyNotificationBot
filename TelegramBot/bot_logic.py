@@ -4,24 +4,18 @@ from model.key_phrase_extraction import key_phrase_extraction
 reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
-danger_user_id = []
-people_danger = {}
 
 
 def emergency_mailing(bot, text, users):
-    global danger_user_id
     danger_user_id = users.copy()
     for id in users:
         if type(id) is str:
             id = int(id)
         bot.send_message(id, f'{text}\n Вы сейчас находитесть по данному адресу?', reply_markup=KB.EmergencyMailingMenu)
-
-
+    return danger_user_id
 
 
 def handler(bot, connect, client):
-
-    global danger_user
 
     def check_exit(func):
         def wrapper(message, *arg, **keyword):
@@ -165,7 +159,8 @@ def handler(bot, connect, client):
 
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
-        if str(message.from_user.id) in danger_user_id:
+
+        if str(message.from_user.id) in users_id:
             if message.text.lower() == 'да':
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
                 global people_danger
@@ -173,11 +168,11 @@ def handler(bot, connect, client):
                 print(people_danger)
             elif message.text.lower() == 'нет':
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
-                                                       'Если да, то укажиче их количество.')
-                danger_user_id.remove(str(message.from_user.id))
+                                                       'Если да, то укажите их количество.')
                 bot.register_next_step_handler(message, check_danger_user_close)
-        print(danger_user_id)
-
+            else:
+                bot.send_message(message.from_user.id, 'Не верный ответ.')
+                bot.register_next_step_handler(message, check_danger_user)
 
     def check_danger_user_close(message):
         if message.text.lower() == 'нет':
@@ -187,11 +182,6 @@ def handler(bot, connect, client):
             people_danger[message.from_user.id] = ["not_user", int(message.text)]
             print(people_danger)
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
-        print(danger_user_id)
-
-   #         print(people_danger)
-
-    #danger_user = danger_user_true
 
 
 def mailing(bot, text, users):
@@ -199,7 +189,3 @@ def mailing(bot, text, users):
         if type(id) is str:
             id = int(id)
         bot.send_message(id, text)
-
-
-def danger_user(users, address):
-    pass
