@@ -28,7 +28,8 @@ def main(bot, conn, client):
             dangerous_stop()
         elif message.lower() == 'стоп':
             bot_stop(bot, bot_work, bot_logic, timer_danger)
-            mailing(bot, 'Бот остановлен', [1011917065, 809971387, 453207183, 283130759])
+            conn.close()
+            mailing(bot, 'Бот остановлен', [1011917065, 809971387, 453207183])
             break
         else:
             mailing(bot, message,  get_all_user(conn))
