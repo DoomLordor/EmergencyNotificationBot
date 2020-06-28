@@ -7,6 +7,17 @@ pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 danger_user_id = []
 
 
+def emergency_mailing(bot, text, users):
+    global danger_user_id
+    danger_user_id = users.copy()
+    for id in users:
+        if type(id) is str:
+            id = int(id)
+        bot.send_message(id, f'{text}\n Вы сейчас находитесть по данному адресу?', reply_markup=KB.EmergencyMailingMenu)
+
+
+
+
 def handler(bot, connect, client):
 
     global danger_user
@@ -26,20 +37,20 @@ def handler(bot, connect, client):
             bot.send_message(message.chat.id,
                              'Вас приветсвует Emergency Notification bot! \n'
                              'Вы ещё не зарегестрированы в нашем приложении.\n'
-                             'Пройти Регистрацию?', reply_markup=KB.markup4)
+                             'Пройти Регистрацию?', reply_markup=KB.FirstConnectMenu)
         else:
             bot.send_message(message.chat.id,
                              'Вас приветсвует Emergency Notification bot! \n'
                              'Введите /help для получения справки по командам',
-                             reply_markup=KB.markup1)
+                             reply_markup=KB.StartMenu)
 
     @bot.message_handler(commands=['exit'])
     def exit_handler(message):
         global reg
         if reg.get(message.from_user.id):
             reg.pop(message.from_user.id)
-        address.pop(message.from_user.id)
-        bot.send_message(message.chat.id, f'Всего доброго, {message.from_user.first_name}', reply_markup=KB.markup5)
+            address.pop(message.from_user.id)
+        bot.send_message(message.chat.id, f'Всего доброго, {message.from_user.first_name}', reply_markup=KB.ExitMenu)
 
     @bot.message_handler(commands=['help', 'h'])
     def help_handler(message):
@@ -50,7 +61,7 @@ def handler(bot, connect, client):
                          '3) /update - смена адресса регистрации\n'
                          '4) /description - Перейсти к описанию ЧС\n'
                          '5) /exit - Выход из системы',
-                         reply_markup=KB.markup2)
+                         reply_markup=KB.HelpMenu)
 
     @bot.message_handler(commands=['update'])
     def update_place(message):
@@ -64,13 +75,13 @@ def handler(bot, connect, client):
                          '103 - скорая помощь\n'
                          '104 - газовая служба\n'
                          '112 - мобильный агрегатор МЧС',
-                         reply_markup=KB.markup3)
+                         reply_markup=KB.NumbersMenu)
 
     @bot.message_handler(commands=['reg'])
     def registration(message):
         global reg
         reg[message.from_user.id] = pattern.copy()
-        bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.markup7)
+        bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.RegistrationMenu)
         bot.register_next_step_handler(message, get_type_place)
 
     @check_exit
@@ -84,7 +95,7 @@ def handler(bot, connect, client):
         elif text.lower() == 'место работы':
             reg[message.from_user.id]['type_place'] = 'work'
         else:
-            bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.markup7)
+            bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.RegistrationMenu)
             bot.register_next_step_handler(message, get_type_place)
         if reg[message.from_user.id]['type_place']:
             bot.send_message(message.chat.id, 'Отправте название улицы:')
@@ -113,7 +124,7 @@ def handler(bot, connect, client):
             street = reg[message.from_user.id]['street']
             addr = f'{street}:{message.text}'
             set_address(connect, message.from_user.id, reg[message.from_user.id]['type_place'], addr)
-            bot.send_message(message.chat.id, 'Адрес добавлен.', reply_markup=KB.markup1)
+            bot.send_message(message.chat.id, 'Адрес добавлен.', reply_markup=KB.StartMenu)
             reg.pop(message.from_user.id)
         else:
             street = reg[message.from_user.id]['street']
@@ -149,37 +160,35 @@ def handler(bot, connect, client):
     #         bot.send_message(message.chat.id, f'{message.from_user.first_name} Спасибо за предоставленную информацию',
     #                          reply_markup=KB.markup1)
 
-    def danger_user_true(users, address):
-        global danger_user_id
-        danger_user_id = users.copy()
-        for id in users:
-            if type(id) is str:
-                id = int(id)
-            bot.send_message(id, f'Вы сейчас находитесть по адресу - {address}')
+
 
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
         if str(message.from_user.id) in danger_user_id:
             if message.text.lower() == 'да':
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
-                global people_danger
-                people_danger[message.from_user.id] = ["user", message.from_user.id]
+    #            global people_danger
+    #            people_danger[message.from_user.id] = ["user", message.from_user.id]
             elif message.text.lower() == 'нет':
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
                                                        'Если да, то укажиче их количество.')
-                danger_user_id.pop(message.from_user.id)
+                danger_user_id.remove(str(message.from_user.id))
                 bot.register_next_step_handler(message, check_danger_user_close)
+
+
 
     def check_danger_user_close(message):
         if message.text.lower() == 'нет':
             bot.send_message(message.from_user.id, 'Хорошо. Удачного вам дня.')
         elif message.text.isdigit():
             global people_danger
-            people_danger[message.from_user.id] = ["not_user", message.text]
+   #        people_danger[message.from_user.id] = ["not_user", message.text]
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
-            print(people_danger)
+        print(danger_user_id)
 
-    danger_user = danger_user_true
+   #         print(people_danger)
+
+    #danger_user = danger_user_true
 
 
 def mailing(bot, text, users):
