@@ -43,7 +43,7 @@ def dangerous_stop():
         print('Проишествия по такому адресу нет')
 
 
-def timer(flows, flag):
+def timer(flows):
     while flag[0]:
         for flow in flows:
             if flow[1] - time() > 100:
