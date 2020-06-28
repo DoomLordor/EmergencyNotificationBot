@@ -1,6 +1,11 @@
 import TelegramBot.Keyboards as KB
 from model.database import set_address, new_user, get_all_user
 from model.key_phrase_extraction import key_phrase_extraction
+from model.EntitiesAnalize import EntitiesAnalize
+from azure.ai.textanalytics import TextAnalyticsClient
+from azure.core.credentials import AzureKeyCredential
+
+
 reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
@@ -119,35 +124,48 @@ def handler(bot, connect, client):
             street = reg[message.from_user.id]['street']
             address[message.from_user.id] = f'{street}:{message.text}'
 
-    # def keyPhrases(massage):
-    #     response_keys = key_phrase_extraction(client, massage.text)
-    #     responses = ''
-    #     for phrase in response_keys:
-    #         responses = responses + phrase + ','
-    #     bot.send_message(massage.chat.id, responses)
-    #     b.append(massage.chat.id)
-    #
-    # @bot.message_handler(commands=['description', 'd'])
-    # def description_key(message):
-    #     bot.send_message(message.chat.id, 'Опишите ситуацию: ')
-    #     bot.register_next_step_handler(message, main_description)
-    #
-    # def main_description(message):
-    #         global i, b
-    #         print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
-    #         ## Проверять адресс и ссумировать только схожие
-    #         if message.from_user.id not in b:
-    #             i += 1
-    #             print(f'Сигнал {i}/10')
-    #             b.append(message.chat.id)
-    #         if i > 9:
-    #             i = 0
-    #             ## Добавить в b Id с улицы и дома где всё произошло
-    #             for id in b:
-    #                 bot.send_message(id, 'Вы находитесь в опасности')
-    #             b.clear()
-    #         bot.send_message(message.chat.id, f'{message.from_user.first_name} Спасибо за предоставленную информацию',
-    #                          reply_markup=KB.markup1)
+
+
+    def authenticate_client(): #для когнитивки
+        ta_credential = AzureKeyCredential('50eb5695624243b59cc69f3c87a5289b')
+        text_analytics_client = TextAnalyticsClient(
+            endpoint="https://emergencynotification.cognitiveservices.azure.com/text/analytics/v2.1/keyPhrases", credential=ta_credential)
+        return text_analytics_client
+
+    client = authenticate_client()
+
+    @bot.message_handler(content_types=['text'])
+    def keyPhrases(message): #для когнитивки
+         response_keys = key_phrase_extraction(client, message)
+         responses = ''
+         for phrase in response_keys:
+             responses = responses + phrase + ','
+         bot.send_message(message.chat.id, responses)
+         entits=EntitiesAnalize(client, responses)
+         bot.send_message(message.chat.id, entits)
+         print(responses)
+
+     #@bot.message_handler(commands=['description', 'd'])
+     #def description_key(message):
+     #    bot.send_message(message.chat.id, 'Опишите ситуацию: ')
+     #    bot.register_next_step_handler(message, main_description)
+
+     #def main_description(message):
+     #        global i, b
+     #        print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
+     #        ## Проверять адресс и ссумировать только схожие
+     #        if message.from_user.id not in b:
+     #            i += 1
+     #            print(f'Сигнал {i}/10')
+     #            b.append(message.chat.id)
+     #        if i > 9:
+     #            i = 0
+     #            ## Добавить в b Id с улицы и дома где всё произошло
+     #            for id in b:
+     #                bot.send_message(id, 'Вы находитесь в опасности')
+     #            b.clear()
+     #        bot.send_message(message.chat.id, f'{message.from_user.first_name} Спасибо за предоставленную информацию',
+     #                         reply_markup=KB.markup1)
 
     def danger_user_true(users, address):
         global danger_user_id
