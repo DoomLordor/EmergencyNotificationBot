@@ -23,10 +23,8 @@ def dangerous_start(message, bot, connected):
 
     people_danger = {}
 
-    flag = False
-
     danger.append([Thread(target=dangerous_processing, args=(bot, users_id, people_danger), name=f'{street}:{num}'),
-                   time_start, users_id, flag])
+                   time_start, users_id, False])
     danger[-1][0].start()
 
 
