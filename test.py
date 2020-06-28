@@ -10,7 +10,6 @@ from model.config import token_telegram_bot, database_connect, key, endpoint, Di
 
 
 def main(bot, conn, client):
-    people_danger = {}
     variable = Thread(target=start_bot, args=(bot,))
     variable1 = Thread(target=handler, args=(bot, conn, client))
     variable.start()

@@ -5,6 +5,7 @@ reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 danger_user_id = []
+people_danger = {}
 
 
 def emergency_mailing(bot, text, users):
@@ -167,14 +168,15 @@ def handler(bot, connect, client):
         if str(message.from_user.id) in danger_user_id:
             if message.text.lower() == 'да':
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
-    #            global people_danger
-    #            people_danger[message.from_user.id] = ["user", message.from_user.id]
+                global people_danger
+                people_danger[message.from_user.id] = ["user", 1]
+                print(people_danger)
             elif message.text.lower() == 'нет':
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
                                                        'Если да, то укажиче их количество.')
                 danger_user_id.remove(str(message.from_user.id))
                 bot.register_next_step_handler(message, check_danger_user_close)
-
+        print(danger_user_id)
 
 
     def check_danger_user_close(message):
@@ -182,7 +184,8 @@ def handler(bot, connect, client):
             bot.send_message(message.from_user.id, 'Хорошо. Удачного вам дня.')
         elif message.text.isdigit():
             global people_danger
-   #        people_danger[message.from_user.id] = ["not_user", message.text]
+            people_danger[message.from_user.id] = ["not_user", int(message.text)]
+            print(people_danger)
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
         print(danger_user_id)
 
