@@ -19,10 +19,11 @@ def set_address(connect, user_id, type_address, address):
 
 
 def get_user_full_address(connect, address):
+    address = address.split(':')
     cursor = connect.cursor()
     cursor.execute("SELECT telegram_id FROM client WHERE (home_place = %s and home_place_num = %s) "
                    "or (stud_place = %s and stud_place_num = %s) or (work_place = %s and work_place_num = %s)",
-                   (address, address, address))
+                   (address[0], address[1], address[0], address[1], address[0], address[1]))
     rows = cursor.fetchall()
     cursor.close()
     return [r[0] for r in rows]
