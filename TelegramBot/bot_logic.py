@@ -156,17 +156,18 @@ def handler(bot, connect, client):
     #                          reply_markup=KB.markup1)
 
 
+def dangerous_processing(bot, users_id, people_danger):
 
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
 
         if str(message.from_user.id) in users_id:
             if message.text.lower() == 'да':
+                users_id.remove(str(message.from_user.id))
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
-                global people_danger
-                people_danger[message.from_user.id] = ["user", 1]
-                print(people_danger)
+                people_danger[message.from_user.id] = ["user", message.from_user.id]
             elif message.text.lower() == 'нет':
+                users_id.remove(str(message.from_user.id))
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
                                                        'Если да, то укажите их количество.')
                 bot.register_next_step_handler(message, check_danger_user_close)
@@ -178,9 +179,7 @@ def handler(bot, connect, client):
         if message.text.lower() == 'нет':
             bot.send_message(message.from_user.id, 'Хорошо. Удачного вам дня.')
         elif message.text.isdigit():
-            global people_danger
-            people_danger[message.from_user.id] = ["not_user", int(message.text)]
-            print(people_danger)
+            people_danger[message.from_user.id] = ["not_user", message.text]
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
 
 
