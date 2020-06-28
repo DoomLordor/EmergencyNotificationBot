@@ -4,6 +4,9 @@ from model.key_phrase_extraction import key_phrase_extraction
 reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
+all_users_id_danger = {}
+people_danger = {}
+
 
 
 def emergency_mailing(bot, text, users):
@@ -33,6 +36,7 @@ def handler(bot, connect, client):
                              'Вас приветсвует Emergency Notification bot! \n'
                              'Вы ещё не зарегестрированы в нашем приложении.\n'
                              'Пройти Регистрацию?', reply_markup=KB.FirstConnectMenu)
+
         else:
             bot.send_message(message.chat.id,
                              'Вас приветсвует Emergency Notification bot! \n'
@@ -42,6 +46,7 @@ def handler(bot, connect, client):
     @bot.message_handler(commands=['exit'])
     def exit_handler(message):
         global reg
+
         if reg.get(message.from_user.id):
             reg.pop(message.from_user.id)
             address.pop(message.from_user.id)
@@ -82,16 +87,22 @@ def handler(bot, connect, client):
     @check_exit
     def get_type_place(message):
         global reg
+
         text = message.text
+
         if text.lower() == 'место проживания':
             reg[message.from_user.id]['type_place'] = 'home'
+
         elif text.lower() == 'место учёбы':
             reg[message.from_user.id]['type_place'] = 'stud'
+
         elif text.lower() == 'место работы':
             reg[message.from_user.id]['type_place'] = 'work'
+
         else:
             bot.send_message(message.chat.id, 'Отправте тип регистрации:', reply_markup=KB.RegistrationMenu)
             bot.register_next_step_handler(message, get_type_place)
+
         if reg[message.from_user.id]['type_place']:
             bot.send_message(message.chat.id, 'Отправте название улицы:')
             bot.register_next_step_handler(message, get_street)
@@ -103,6 +114,7 @@ def handler(bot, connect, client):
             bot.send_message(message.chat.id, 'Название улицы не может состоять из цифр.')
             bot.send_message(message.chat.id, 'Отправте название улицы:')
             bot.register_next_step_handler(message, get_street)
+
         else:
             reg[message.from_user.id]['street'] = message.text.lower()
             bot.send_message(message.chat.id, 'Отправте номер дома:')
@@ -115,12 +127,14 @@ def handler(bot, connect, client):
             bot.send_message(message.chat.id, 'Номер дома не может состоять из букв.')
             bot.send_message(message.chat.id, 'Отправте номер дома:')
             bot.register_next_step_handler(message, get_street)
+
         elif reg[message.from_user.id]['save_address']:
             street = reg[message.from_user.id]['street']
             addr = f'{street}:{message.text}'
             set_address(connect, message.from_user.id, reg[message.from_user.id]['type_place'], addr)
             bot.send_message(message.chat.id, 'Адрес добавлен.', reply_markup=KB.StartMenu)
             reg.pop(message.from_user.id)
+
         else:
             street = reg[message.from_user.id]['street']
             address[message.from_user.id] = f'{street}:{message.text}'
@@ -156,31 +170,40 @@ def handler(bot, connect, client):
     #                          reply_markup=KB.markup1)
 
 
-def dangerous_processing(bot, users_id, people_danger):
+def dangerous_processing(bot):
 
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
-
-        if str(message.from_user.id) in users_id:
+        if str(message.from_user.id) in all_users_id_danger:
             if message.text.lower() == 'да':
-                users_id.remove(str(message.from_user.id))
+                address = all_users_id_danger[str(message.from_user.id)]
+                all_users_id_danger.pop(str(message.from_user.id))
                 bot.send_message(message.from_user.id, 'Следйте дальнейшим инструкциям')
-                people_danger[message.from_user.id] = ["user", message.from_user.id]
+                people_danger[str(message.from_user.id)] = ["user", message.from_user.id, address]
+
             elif message.text.lower() == 'нет':
-                users_id.remove(str(message.from_user.id))
                 bot.send_message(message.from_user.id, 'Находились ли ваши близкие по указанному адресу в тот момет?\n'
                                                        'Если да, то укажите их количество.')
                 bot.register_next_step_handler(message, check_danger_user_close)
+
             else:
                 bot.send_message(message.from_user.id, 'Не верный ответ.')
                 bot.register_next_step_handler(message, check_danger_user)
 
     def check_danger_user_close(message):
         if message.text.lower() == 'нет':
+            all_users_id_danger.pop(str(message.from_user.id))
             bot.send_message(message.from_user.id, 'Хорошо. Удачного вам дня.')
+
         elif message.text.isdigit():
-            people_danger[message.from_user.id] = ["not_user", message.text]
+            address = all_users_id_danger[str(message.from_user.id)]
+            all_users_id_danger.pop(str(message.from_user.id))
+            people_danger[str(message.from_user.id)] = ["not_user", message.text, address]
             bot.send_message(message.from_user.id, 'Данные были переданы спец службам')
+
+        else:
+            bot.send_message(message.from_user.id, 'Не верный ответ.')
+            bot.register_next_step_handler(message, check_danger_user)
 
 
 def mailing(bot, text, users):

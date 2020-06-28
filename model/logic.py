@@ -1,8 +1,8 @@
 import http.client
 from threading import Thread
 from time import time, sleep
-from model.database import get_user
-from TelegramBot.bot_logic import emergency_mailing, dangerous_processing
+from model.database import get_user_full_address
+from TelegramBot.bot_logic import emergency_mailing, dangerous_processing, all_users_id_danger, people_danger
 
 danger = []
 flag = [True]
@@ -13,18 +13,22 @@ def dangerous_start(message, bot, connected):
     street = input('Введите улицу проишествия: ').lower()
     num = input('Введите дом проишествия: ')
 
-    users = get_user(connected, f'{street}:{num}')
+    addres = f'{street}:{num}'
 
-    message = f'По аддресу {street.title()} {num} произошло проишествие: {message}'
+    users = get_user_full_address(connected, addres)
 
-    users_id = emergency_mailing(bot, message, users)
+    message = f'По адресу {street.title()} {num} произошло проишествие: {message}'
+
+    users = emergency_mailing(bot, message, users)
 
     time_start = time()
 
-    people_danger = {}
+    for user in users:
+        all_users_id_danger[user] = addres
 
-    danger.append([Thread(target=dangerous_processing, args=(bot, users_id, people_danger), name=f'{street}:{num}'),
-                   time_start, users_id, False])
+    danger.append([Thread(target=dangerous_processing, args=(bot,), name=f'{street}:{num}'),
+                   time_start, False])
+
     danger[-1][0].start()
 
 
@@ -44,20 +48,25 @@ def dangerous_stop():
 def timer(flows):
     while flag[0]:
         for flow in flows:
+            flag_flow = False
+            name = flow[0].getName()
             if flow[1] - time() > 100:
-                flow[0].join()
-                print(f'По аддресу {flow[0].getName()} время вышло')
+                flag_flow = True
+                print(f'По аддресу {name} время вышло')
                 # Клаву пользователю нужно вернуть на стартовую
-                flows.remove(flow)
             elif not flow[2]:
-                flow[0].join()
-                print(f'По аддресу {flow[0].getName()} опрос окончен')
-                flows.remove(flow)
+                flag_flow = True
+                print(f'По аддресу {name} опрос окончен')
             elif flow[3]:
-                flow[0].join()
-                print(f'По аддресу {flow[0].getName()} ситуация завершина')
+                flag_flow = True
+                print(f'По аддресу {name} ситуация завершина')
+            if flag_flow:
+                if not len(people_danger):
+                    people_danger.pop(name)
+                for user in all_users_id_danger:
+                    if all_users_id_danger[user] == name:
+                        all_users_id_danger.pop(user)
                 flows.remove(flow)
-        print('timer')
         sleep(60)
 
 
