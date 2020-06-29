@@ -47,3 +47,8 @@ EmergencyMailingMenu = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_
 item1 = types.KeyboardButton("Да")
 item2 = types.KeyboardButton("Нет")
 EmergencyMailingMenu.add(item1, item2)
+
+AdminMenu= types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+item1 = types.KeyboardButton("Войти")
+item2 = types.KeyboardButton("/exit")
+AdminMenu.add(item1, item2)

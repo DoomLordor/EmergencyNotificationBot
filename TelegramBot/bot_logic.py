@@ -1,12 +1,19 @@
+import os
+import requests
+import speech_recognition as sr
+from pydub import AudioSegment
 import TelegramBot.Keyboards as KB
 from model.database import set_address, new_user, get_all_user
+from model.config import token_telegram_bot
 from model.key_phrase_extraction import key_phrase_extraction
+from model.config import Disasters
+
+song = {}
 reg = {}
 address = {}
 pattern = {'street': '', 'type_place': '', 'save_address': True, 'address': ''}
 all_users_id_danger = {}
 people_danger = {}
-
 
 
 def emergency_mailing(bot, text, users):
@@ -27,6 +34,27 @@ def handler(bot, connect, client):
             else:
                 func(message, *arg, **keyword)
         return wrapper
+
+    @bot.message_handler(commands=['admin'])
+    def admin_handler(message):
+        if message.from_user.id == 809971387:
+
+            bot.send_message(message.chat.id, 'Привет Хозяин',
+                             reply_markup=KB.AdminMenu)
+            bot.send_message(message.chat.id, 'Сообщение пользователям:')
+            bot.register_next_step_handler(message, Consol)
+
+    @check_exit
+    def Consol(message):
+        message = message.text
+        from model.logic import dangerous_stop, dangerous_start
+        if message.lower() in Disasters:
+            dangerous_start(message, bot, connect)
+        elif message.lower() == 'проишествие стоп':
+            dangerous_stop()
+        else:
+            mailing(bot, message, get_all_user(connect))
+            print(message)
 
     @bot.message_handler(commands=['start', 'go'])
     def start_handler(message):
@@ -139,39 +167,48 @@ def handler(bot, connect, client):
             street = reg[message.from_user.id]['street']
             address[message.from_user.id] = f'{street}:{message.text}'
 
-    # def keyPhrases(massage):
-    #     response_keys = key_phrase_extraction(client, massage.text)
-    #     responses = ''
-    #     for phrase in response_keys:
-    #         responses = responses + phrase + ','
-    #     bot.send_message(massage.chat.id, responses)
-    #     b.append(massage.chat.id)
-    #
-    # @bot.message_handler(commands=['description', 'd'])
-    # def description_key(message):
-    #     bot.send_message(message.chat.id, 'Опишите ситуацию: ')
-    #     bot.register_next_step_handler(message, main_description)
-    #
-    # def main_description(message):
-    #         global i, b
-    #         print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}')
-    #         ## Проверять адресс и ссумировать только схожие
-    #         if message.from_user.id not in b:
-    #             i += 1
-    #             print(f'Сигнал {i}/10')
-    #             b.append(message.chat.id)
-    #         if i > 9:
-    #             i = 0
-    #             ## Добавить в b Id с улицы и дома где всё произошло
-    #             for id in b:
-    #                 bot.send_message(id, 'Вы находитесь в опасности')
-    #             b.clear()
-    #         bot.send_message(message.chat.id, f'{message.from_user.first_name} Спасибо за предоставленную информацию',
-    #                          reply_markup=KB.markup1)
+    def recogn(message):  # для когнитивки
+        file_info = bot.get_file(message.voice.file_id)
+        name = f'{message.chat.id}.ogg'
+        name = os.path.join('audio', name)
+        file = requests.get('https://api.telegram.org/file/bot{}/{}'.format(token_telegram_bot, file_info.file_path))
+        f = open(name, "wb")
+        f.write(file.content)
+        f.close()
+        path = os.path.join(os.getcwd(), name)
+
+        song[message.chat.id] = AudioSegment.from_file(path, 'ogg')
+        os.remove(path)
+        song[message.chat.id].export(path.replace('.ogg', '.wav'), format="wav")
+        path = path.replace('.ogg', '.wav')
+
+        f = sr.AudioFile(path)
+        r = sr.Recognizer()
+        with f as audio_file:
+            audio_content = r.record(audio_file)
+
+        text = r.recognize_google(audio_content, language='Ru-r')
+        os.remove(path)
+        return text
+
+    @bot.message_handler(commands=['description', 'd'])
+    def description_key(message):
+        bot.send_message(message.chat.id, 'Опишите ситуацию: ')
+        bot.register_next_step_handler(message, main_description)
+
+    def main_description(message):
+        if not message.text:
+            message.text = recogn(message)
+            bot.send_message(message.chat.id, f'Вы сказали:\n{message.text}')
+        print(f'{message.from_user.first_name} [{message.from_user.id}]: {message.text}\n{keyPhrases(message)}')
+        bot.send_message(message.chat.id, f'{message.from_user.first_name}, спасибо за предоставленную информацию',
+                         reply_markup=KB.StartMenu)
+
+    def keyPhrases(message):  # для когнитивки
+        return ', '.join(key_phrase_extraction(message))
 
 
 def dangerous_processing(bot):
-
     @bot.message_handler(content_types=['text'])
     def check_danger_user(message):
         if str(message.from_user.id) in all_users_id_danger:

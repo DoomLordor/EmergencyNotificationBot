@@ -61,9 +61,9 @@ def timer(flows):
                 flag_flow = True
                 print(f'По аддресу {name} ситуация завершина')
             if flag_flow:
-                if not len(people_danger):
+                if name in people_danger:
                     people_danger.pop(name)
-                for user in all_users_id_danger:
+                for user in all_users_id_danger[:]:
                     if all_users_id_danger[user] == name:
                         all_users_id_danger.pop(user)
                 flows.remove(flow)
