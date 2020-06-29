@@ -1,10 +1,15 @@
 import TelegramBot.Keyboards as KB
+import speech_recognition as sr
+import requests
+from pydub import AudioSegment
 from model.database import set_address, new_user, get_all_user
 from model.key_phrase_extraction import key_phrase_extraction
 from model.EntitiesAnalize import EntitiesAnalize
 from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
-
+from model.Convert import *
+AudioSegment.converter="D:/ХАКАТОН/ffmpeg/bin/ffmpeg.exe"
+r = sr.Recognizer ()
 
 reg = {}
 address = {}
@@ -145,7 +150,32 @@ def handler(bot, connect, client):
          bot.send_message(message.chat.id, entits)
          print(responses)
 
-     #@bot.message_handler(commands=['description', 'd'])
+    @bot.message_handler(content_types=['voice'])
+    def recogn(message): #для когнитивки
+         #print(message.chat.id, message.voice)
+         file_info = bot.get_file(message.voice.file_id)
+         file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format('1213132925:AAE2jwkv00Xgl6AeyQj9UxgkZE5QoHpm2fU', file_info.file_path))
+         try:
+          f = open("sound.ogg", "wb")
+          f.write(file.content)
+         finally:
+          f.close()
+         name = 'sound'
+         path = os.path.join(os.getcwd(), name)
+         song = AudioSegment.from_ogg(f'{os.getcwd()}\{name}.ogg')
+         song.export(path.replace('.ogg', '.wav'), format="wav")
+         f = sr.AudioFile('D:/ХАКАТОН/sound')
+         with f as audio_file:
+             audio_content = r.record(audio_file)
+             zadanie = r.recognize_google(audio_content, language="Ru-r")
+             print(format(zadanie))
+        #bot.send_message(message.chat.id, zadanie)
+        # f.close()
+         #print(zadanie)
+         #print(file_info.file_path)
+         #sample_audio = sr.AudioFile(file)
+         #with sample_audio as audio_file:
+    #@bot.message_handler(commands=['description', 'd'])
      #def description_key(message):
      #    bot.send_message(message.chat.id, 'Опишите ситуацию: ')
      #    bot.register_next_step_handler(message, main_description)

@@ -2,7 +2,7 @@ import http.client
 from telebot import TeleBot
 from psycopg2 import connect
 from threading import Thread
-from model.database import get_all_user, get_user
+from model.database import get_all_user
 from TelegramBot.bot_logic import handler, mailing, danger_user
 from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
@@ -11,12 +11,13 @@ from model.config import token_telegram_bot, database_connect, key, endpoint, Di
 
 def main(bot, conn, client):
     people_danger = {}
-    variable = Thread(target=start_bot, args=(bot,))
+    #variable = Thread(target=start_bot, args=(bot,))
     variable1 = Thread(target=handler, args=(bot, conn, client))
-    variable.start()
+    #variable.start()
     variable1.start()
     ip = get_ip()
     mailing(bot, f'Бот запущен на сервере у {ip}', [1011917065, 809971387, 453207183, 283130759])
+    bot.polling(none_stop=True, interval=1)
     while True:
         message = input('Сообщение: ')
         if message.lower() in Disasters:
@@ -37,8 +38,8 @@ def main(bot, conn, client):
             print(message)
 
 
-def start_bot(bot):
-    bot.polling(none_stop=True, interval=1)
+#def start_bot(bot):
+ #   bot.polling(none_stop=True, interval=1)
 
 
 def authenticate_client():
