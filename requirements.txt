@@ -1,2 +1,5 @@
-pyTelegramBotAPI==3.7.1
-psycopg2==2.8.5
+pyTelegramBotAPI
+psycopg2
+azure-ai-textanalytics
+azure-common
+azure-core
